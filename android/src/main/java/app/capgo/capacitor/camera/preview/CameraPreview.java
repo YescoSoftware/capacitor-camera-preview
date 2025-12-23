@@ -1320,7 +1320,9 @@ public class CameraPreview extends Plugin implements CameraXView.CameraXViewList
 
                 // Force aspect ratio recalculation on orientation change
                 Log.d(TAG, "Original coordinates stored: originalX=" + this.originalX + ", originalY=" + this.originalY);
-                cameraXView.forceAspectRatioRecalculation(ar, this.originalX, this.originalY, () -> {
+                Float floatX = this.originalX != null ? this.originalX.floatValue() : null;
+                Float floatY = this.originalY != null ? this.originalY.floatValue() : null;
+                cameraXView.forceAspectRatioRecalculation(ar, floatX, floatY, () -> {
                     int[] bounds = cameraXView.getCurrentPreviewBounds();
                     Log.d(
                         TAG,
