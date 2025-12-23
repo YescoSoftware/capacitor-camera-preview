@@ -663,10 +663,14 @@ public class CameraXView implements LifecycleOwner, LifecycleObserver {
                         Log.d(TAG, "Width-limited sizing: " + width + "x" + height);
                     }
 
-                    // Center the preview
-                    x = (screenWidthPx - width) / 2;
-                    y = (screenHeightPx - height) / 2;
-
+                    // Center the preview only overwrite what was not explicitly set
+                    if (sessionConfig.getX() == -1){
+                        x = (screenWidthPx - width) / 2;
+                    }
+                    if (sessionConfig.getY() == -1){
+                        y = (screenHeightPx - height) / 2;
+                    }
+                    
                     Log.d(TAG, "Auto-centered position: x=" + x + ", y=" + y);
                 } catch (NumberFormatException e) {
                     Log.e(TAG, "Invalid aspect ratio format: " + aspectRatio, e);
