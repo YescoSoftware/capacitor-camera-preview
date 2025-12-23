@@ -1319,6 +1319,7 @@ public class CameraPreview extends Plugin implements CameraXView.CameraXViewList
                 Log.d(TAG, "New WebView dimensions after rotation: " + newWebViewWidth + "x" + newWebViewHeight);
 
                 // Force aspect ratio recalculation on orientation change
+                Log.d(TAG, "Original coordinates stored: originalX=" + this.originalX + ", originalY=" + this.originalY);
                 cameraXView.forceAspectRatioRecalculation(ar, this.originalX, this.originalY, () -> {
                     int[] bounds = cameraXView.getCurrentPreviewBounds();
                     Log.d(
