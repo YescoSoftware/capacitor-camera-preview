@@ -107,6 +107,8 @@ public class CameraPreview extends Plugin implements CameraXView.CameraXViewList
     static final String CAMERA_WITH_LOCATION_PERMISSION_ALIAS = "cameraWithLocation";
     static final String MICROPHONE_ONLY_PERMISSION_ALIAS = "microphoneOnly";
 
+    private Integer originalX = null;
+    private Integer originalY = null;
     private String captureCallbackId = "";
     private String sampleCallbackId = "";
     private String cameraStartCallbackId = "";
@@ -869,6 +871,9 @@ public class CameraPreview extends Plugin implements CameraXView.CameraXViewList
         final int x = xParam != null ? xParam : -1;
         final int y = yParam != null ? yParam : -1;
 
+        this.originalX = xParam;
+        this.originalY = yParam;
+
         Log.d("CameraPreview", "========================");
         Log.d("CameraPreview", "CAMERA POSITION TRACKING START:");
         Log.d("CameraPreview", "1. RAW PARAMS - xParam: " + xParam + ", yParam: " + yParam);
@@ -1314,7 +1319,7 @@ public class CameraPreview extends Plugin implements CameraXView.CameraXViewList
                 Log.d(TAG, "New WebView dimensions after rotation: " + newWebViewWidth + "x" + newWebViewHeight);
 
                 // Force aspect ratio recalculation on orientation change
-                cameraXView.forceAspectRatioRecalculation(ar, null, null, () -> {
+                cameraXView.forceAspectRatioRecalculation(ar, originalX, originalY, () -> {
                     int[] bounds = cameraXView.getCurrentPreviewBounds();
                     Log.d(
                         TAG,
