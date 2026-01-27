@@ -1791,8 +1791,9 @@ public class CameraXView implements LifecycleOwner, LifecycleObserver {
                 String position = isBackCamera(cameraInfo) ? "rear" : "front";
                     
                 // Add logical camera
-                float minZoom = Objects.requireNonNull(cameraInfo.getZoomState().getValue()).getMinZoomRatio();
-                float maxZoom = cameraInfo.getZoomState().getValue().getMaxZoomRatio();
+                ZoomState zoomState = cameraInfo.getZoomState().getValue();
+                float minZoom = zoomState != null ? zoomState.getMinZoomRatio() : 1.0f;
+                float maxZoom = zoomState != null ? zoomState.getMaxZoomRatio() : 1.0f;
 
                 // Determine device type by analyzing camera characteristics
                 String deviceType = "wideAngle";
@@ -1816,9 +1817,9 @@ public class CameraXView implements LifecycleOwner, LifecycleObserver {
                             }
                         } else {
                             // Fallback: classify by focal length alone
-                            if (focalLength < 2.5f) {
+                            if (focalLength < 3.0f) {
                                 deviceType = "ultraWide";
-                            } else if (focalLength > 5.5f) {
+                            } else if (focalLength > 5.0f) {
                                 deviceType = "telephoto";
                             }
                         }
