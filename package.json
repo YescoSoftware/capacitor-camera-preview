@@ -1,17 +1,20 @@
 {
-  "name": "@capgo/camera-preview",
-  "version": "8.0.8",
-  "description": "Camera preview",
+  "name": "@sbuhler/camera-preview",
+  "version": "8.0.10",
+  "description": "Camera preview (fork of @capgo/camera-preview with pending PR fixes)",
   "license": "MPL-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Cap-go/capacitor-camera-preview"
+    "url": "https://github.com/YescoSoftware/capacitor-camera-preview"
   },
   "bugs": {
-    "url": "https://github.com/Cap-go/capacitor-camera-preview/issues"
+    "url": "https://github.com/YescoSoftware/capacitor-camera-preview"
   },
-  "homepage": "https://capgo.app/docs/plugins/camera-preview/",
-  "author": "Martin Donadieu <martin@capgo.app>",
+  "homepage": "https://github.com/YescoSoftware/capacitor-camera-preview",
+  "author": "Spencer Buhler <sbuhler@yesco.com>",
+  "contributors": [
+    "Martin Donadieu <martin@capgo.app>"
+  ],
   "keywords": [
     "capacitor",
     "plugin",
