@@ -2,9 +2,25 @@ import AVFoundation
 import UIKit
 import CoreLocation
 import UniformTypeIdentifiers
+import CoreMotion
 
 class CameraController: NSObject {
     private func getVideoOrientation() -> AVCaptureVideoOrientation {
+        // Use accelerometer to detect actual device orientation
+        if let accelerometerData = motionManager.accelerometerData {
+            let x = accelerometerData.acceleration.x
+            let y = accelerometerData.acceleration.y
+
+            if abs(x) > abs(y) {
+                // Landscape
+                return x > 0 ? .landscapeLeft : .landscapeRight
+            } else {
+                // Portrait
+                return y > 0 ? .portraitUpsideDown : .portrait
+            }
+        }
+
+        // Fallback to interface in case of accelerometer fail
         var orientation: AVCaptureVideoOrientation = .portrait
         if Thread.isMainThread {
             if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
@@ -74,6 +90,7 @@ class CameraController: NSObject {
     var zoomFactor: CGFloat = 1.0
     private var lastZoomUpdateTime: TimeInterval = 0
     private let zoomUpdateThrottle: TimeInterval = 1.0 / 60.0 // 60 FPS max
+    private let motionManager = CMMotionManager()
 
     var videoFileURL: URL?
     private let saneMaxZoomFactor: CGFloat = 25.5
@@ -337,7 +354,9 @@ extension CameraController {
                 }
                 return
             }
-
+            if !self.motionManager.isAccelerometerActive {
+                self.motionManager.startAccelerometerUpdates()
+            }   
             do {
                 // Create session if needed
                 if self.captureSession == nil {
@@ -899,7 +918,9 @@ extension CameraController {
             completion(nil, nil, nil, NSError(domain: "Camera", code: 0, userInfo: [NSLocalizedDescriptionKey: "Photo output is not available"]))
             return
         }
-
+        if let connection = photoOutput.connection(with: .video) {
+            connection.videoOrientation = self.getVideoOrientation()
+        }
         let settings = AVCapturePhotoSettings()
         // Configure photo capture settings optimized for speed
         // Only use high res if explicitly requesting large dimensions
@@ -1882,6 +1903,7 @@ extension CameraController {
             captureSession.outputs.forEach { captureSession.removeOutput($0) }
         }
 
+        self.motionManager.stopAccelerometerUpdates()
         self.previewLayer?.removeFromSuperlayer()
         self.previewLayer = nil
 
@@ -2107,18 +2129,8 @@ extension CameraController {
         //
         if let connection = fileVideoOutput.connection(with: .video) {
             if connection.isEnabled == false { connection.isEnabled = true }
-            switch UIDevice.current.orientation {
-            case .landscapeRight:
-                connection.videoOrientation = .landscapeLeft
-            case .landscapeLeft:
-                connection.videoOrientation = .landscapeRight
-            case .portrait:
-                connection.videoOrientation = .portrait
-            case .portraitUpsideDown:
-                connection.videoOrientation = .portraitUpsideDown
-            default:
-                connection.videoOrientation = .portrait
-            }
+            // Goes off accelerometer now
+            connection.videoOrientation = self.getVideoOrientation()
         }
 
         let identifier = UUID()
