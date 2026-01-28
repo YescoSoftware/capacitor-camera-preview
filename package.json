@@ -33,7 +33,7 @@
   "main": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
   "files": [
-    "CapgoCameraPreview.podspec",
+    "SbuhlerCameraPreview.podspec",
     "android/",
     "dist/",
     "ios/"
@@ -85,8 +85,7 @@
   "swiftlint": "@ionic/swiftlint-config",
   "capacitor": {
     "ios": {
-      "src": "ios",
-      "podspec": "CapgoCameraPreview.podspec"
+      "src": "ios"    
     },
     "android": {
       "src": "android"
