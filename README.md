@@ -1,5 +1,7 @@
 # Capacitor Camera Preview Plugin
 
+## Forked version of Capgo Camera-Preview. Mainly to do pull requests, not for production
+
 <a href="https://capgo.app/"><img src='https://raw.githubusercontent.com/Cap-go/capgo/main/assets/capgo_banner.png' alt='Capgo - Instant updates for capacitor'/></a>
 
 <div align="center">
@@ -1279,7 +1281,9 @@ The available flash modes for the camera.
 
 From T, pick a set of properties whose keys are in the union K
 
-<code>{ [P in K]: T[P]; }</code>
+<code>{
+ [P in K]: T[P];
+ }</code>
 
 
 #### FlashMode
