@@ -1,6 +1,6 @@
 {
   "name": "@sbuhler/camera-preview",
-  "version": "8.0.10",
+  "version": "8.1.0",
   "description": "Camera preview (fork of @capgo/camera-preview with pending PR fixes)",
   "license": "MPL-2.0",
   "repository": {
