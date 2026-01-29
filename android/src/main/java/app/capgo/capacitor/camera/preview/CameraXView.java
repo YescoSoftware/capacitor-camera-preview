@@ -1048,10 +1048,10 @@ private int getRotationFromAccelerometer() {
         // Landscape orientation
         if (x > 0) {
             // Device tilted to the left (top of device points left)
-            return android.view.Surface.ROTATION_270;
+            return android.view.Surface.ROTATION_90;
         } else {
             // Device tilted to the right (top of device points right)
-            return android.view.Surface.ROTATION_90;
+            return android.view.Surface.ROTATION_270;
         }
     } else {
         // Portrait orientation
@@ -1843,6 +1843,19 @@ private int getRotationFromAccelerometer() {
         Rect bounds = getActualCameraBounds();
         int previewW = Math.max(1, bounds.width());
         int previewH = Math.max(1, bounds.height());
+
+        // Check if device physical orientation differs from UI orientation
+        int rotation = getRotationFromAccelerometer();
+        boolean physicalInLandscape = (rotation == android.view.Surface.ROTATION_90 || rotation == android.view.Surface.ROTATION_270);
+        boolean previewIsPortrait = previewH > previewW;
+
+        // If physical orientation doesn't match preview orientation swap ratio
+        if (physicalInLandscape == previewIsPortrait) {
+            int temp = previewW;
+            previewW = previewH;
+            previewH = temp;
+        }
+
         float previewRatio = (float) previewW / (float) previewH;
 
         int imgW = image.getWidth();

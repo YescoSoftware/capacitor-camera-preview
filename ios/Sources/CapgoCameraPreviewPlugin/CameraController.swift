@@ -6,21 +6,6 @@ import CoreMotion
 
 class CameraController: NSObject {
     private func getVideoOrientation() -> AVCaptureVideoOrientation {
-        // Use accelerometer to detect actual device orientation
-        if let accelerometerData = motionManager.accelerometerData {
-            let x = accelerometerData.acceleration.x
-            let y = accelerometerData.acceleration.y
-
-            if abs(x) > abs(y) {
-                // Landscape
-                return x > 0 ? .landscapeLeft : .landscapeRight
-            } else {
-                // Portrait
-                return y > 0 ? .portraitUpsideDown : .portrait
-            }
-        }
-
-        // Fallback to interface in case of accelerometer fail
         var orientation: AVCaptureVideoOrientation = .portrait
         if Thread.isMainThread {
             if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
@@ -52,6 +37,24 @@ class CameraController: NSObject {
         }
         return orientation
     }
+
+    // For capture only - uses accelerometer to detect physical orientation to properly position videos/images
+    private func getPhysicalOrientation() -> AVCaptureVideoOrientation {
+        guard let accelerometerData = motionManager.accelerometerData else {
+            return getVideoOrientation() // Fallback to interface in case of accelerometer fail
+        }
+
+        let x = accelerometerData.acceleration.x
+        let y = accelerometerData.acceleration.y
+
+        if abs(x) > abs(y) {
+            // Landscape
+            return x > 0 ? .landscapeLeft : .landscapeRight
+        } else {
+            // Portrait
+            return y > 0 ? .portraitUpsideDown : .portrait
+            }
+        }
 
     var captureSession: AVCaptureSession?
     var disableFocusIndicator: Bool = false
@@ -919,7 +922,7 @@ extension CameraController {
             return
         }
         if let connection = photoOutput.connection(with: .video) {
-            connection.videoOrientation = self.getVideoOrientation()
+            connection.videoOrientation = self.getPhysicalOrientation()
         }
         let settings = AVCapturePhotoSettings()
         // Configure photo capture settings optimized for speed
@@ -1306,9 +1309,26 @@ extension CameraController {
     }
 
     func cropImageToAspectRatio(image: UIImage, aspectRatio: String) -> UIImage? {
-        guard let ratio = parseAspectRatio(aspectRatio) else {
+        let components = aspectRatio.split(separator: ":").compactMap {Float(String($0))}
+        guard components.count == 2 else {
             print("[CameraPreview] cropImageToAspectRatio - Failed to parse aspect ratio: \(aspectRatio)")
             return image
+        }
+
+        // Use physical orientation for capture works with portrait lock
+        let orientation = self.getPhysicalOrientation()
+        let isPortrait = (orientation == .portrait || orientation == .portraitUpsideDown)
+
+        let ratioWidth: CGFloat
+        let ratioHeight: CGFloat
+        if isPortrait {
+            // For portrait 4:3 becomes 3:4, 16:9 becomes 9:16
+            ratioWidth = CGFloat(components[1])
+            ratioHeight = CGFloat(components[0])
+        } else {
+            // For landscape keep original
+            ratioWidth = CGFloat(components[0])
+            ratioHeight = CGFloat(components[1])
         }
 
         // Only normalize the image orientation if it's not already correct
@@ -1323,10 +1343,10 @@ extension CameraController {
 
         let imageSize = normalizedImage.size
         let imageAspectRatio = imageSize.width / imageSize.height
-        let targetAspectRatio = ratio.width / ratio.height
+        let targetAspectRatio = ratioWidth / ratioHeight
 
         print("[CameraPreview] cropImageToAspectRatio - Original image: \(imageSize.width)x\(imageSize.height) (ratio: \(imageAspectRatio))")
-        print("[CameraPreview] cropImageToAspectRatio - Target ratio: \(ratio.width):\(ratio.height) (ratio: \(targetAspectRatio))")
+        print("[CameraPreview] cropImageToAspectRatio - Target ratio: \(ratioWidth):\(ratioHeight) (ratio: \(targetAspectRatio))")
 
         var cropRect: CGRect
 
@@ -2130,7 +2150,7 @@ extension CameraController {
         if let connection = fileVideoOutput.connection(with: .video) {
             if connection.isEnabled == false { connection.isEnabled = true }
             // Goes off accelerometer now
-            connection.videoOrientation = self.getVideoOrientation()
+            connection.videoOrientation = self.getPhysicalOrientation()
         }
 
         let identifier = UUID()
